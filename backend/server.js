@@ -6,16 +6,20 @@ const http = require('http');
 const socketIo = require('socket.io');
 const pollRoutes = require('./routes/pollRoutes');
 
+
 const app = express();
 const server = http.createServer(app);
 
 // backend/server.js
 const corsOptions = {
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 };
+
 app.use(cors(corsOptions));
+
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
@@ -26,9 +30,9 @@ const connectWithRetry = () => {
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000
   })
-  .then(() => console.log('✅ MongoDB Connected'))
+  .then(() => console.log(' MongoDB Connected'))
   .catch(err => {
-    console.error('❌ MongoDB Connection Error:', err.message);
+    console.error(' MongoDB Connection Error:', err.message);
     setTimeout(connectWithRetry, 5000);
   });
 };
@@ -53,7 +57,7 @@ const io = socketIo(server, {
 require('./services/socketService')(io);
 
 app.use((err, req, res, next) => {
-  console.error('🔥 Server Error:', {
+  console.error(' Server Error:', {
     path: req.path,
     method: req.method,
     error: err.stack || err.message
@@ -67,15 +71,15 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌐 CORS enabled for: ${corsOptions.origin}`);
+  console.log(` Server running on port ${PORT}`);
+  console.log(` CORS enabled for: ${corsOptions.origin}`);
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('💥 Unhandled Rejection:', err);
+  console.error(' Unhandled Rejection:', err);
 });
 
 process.on('uncaughtException', (err) => {
-  console.error('💥 Uncaught Exception:', err);
+  console.error('Uncaught Exception:', err);
   process.exit(1);
 });
